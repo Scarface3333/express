@@ -30,7 +30,7 @@ app.use(function(req, res, next) {
 });
 
 //на всех интерфейсах
-app.listen(process.env.PORT || 8080, '0.0.0.0', () => {
+app.listen(process.env.PORT || 3001, '0.0.0.0', () => {
   console.log('Server running on port 8080');
 });
 // error handler
