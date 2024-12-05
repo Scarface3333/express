@@ -29,6 +29,10 @@ app.use(function(req, res, next) {
   next(createError(404));
 });
 
+//на всех интерфейсах
+app.listen(process.env.PORT || 8080, '0.0.0.0', () => {
+  console.log('Server running on port 8080');
+});
 // error handler
 app.use(function(err, req, res, next) {
   // set locals, only providing error in development
