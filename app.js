@@ -46,6 +46,9 @@ app.use(function(err, req, res, next) {
       status: err.status || 500,
     },
   });
+  require('dotenv').config();
+
+
 });
 
 module.exports = app;
