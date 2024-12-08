@@ -32,7 +32,7 @@ model User {
 }
 
 model Follows {
-  id          String   @id @default(autoincrement())
+  id          Int   @id @default(autoincrement())
   follower    User   @relation("follower", fields: [followerId], references: [id])
   followerId  Int
   following   User   @relation("following", fields: [followingId], references: [id])
@@ -40,7 +40,7 @@ model Follows {
 }
 
 model Post {
-  id        String     @id @default(autoincrement())
+  id        Int       @id @default(autoincrement())
   content   String
   author    User      @relation(fields: [authorId], references: [id])
   authorId  Int
