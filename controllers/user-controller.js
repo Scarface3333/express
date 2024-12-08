@@ -76,85 +76,99 @@ const UserController = {
       }
 
     },
-    getUserByID:  async (req,res) => {
-        const {id} = req.params;
+    getUserByID: async (req, res) => {
+        const { id } = req.params;
         const userId = req.user.userId;
-
+    
+        // Преобразуем id в число
+        const userIdInt = parseInt(id, 10);
+    
+        if (isNaN(userIdInt)) {
+            return res.status(400).json({ error: "Invalid ID format" });
+        }
+    
         try {
             const user = await prisma.user.findUnique({
-            where: {id},
-            include:{
-                followers: true,
-                following: true
+                where: { id: userIdInt },
+                include: {
+                    followers: true,
+                    following: true
+                }
+            });
+    
+            if (!user) {
+                return res.status(404).json({ error: 'Пользователь не найден' });
             }
-        })  
-        
-        if(!user){
-            return res.status(404).json({error:'Пользователь не найден'})
-        }
-        
-        const isFollowing = await prisma.follows.findFirst({
-            where:{
-                AND: [
-                    {followerId: userId},
-                    {followingId: id}
-                ]
-            }
-        })
-        res.json({...user,isFollowing:Boolean(isFollowing)})
+    
+            const isFollowing = await prisma.follows.findFirst({
+                where: {
+                    AND: [
+                        { followerId: userId },
+                        { followingId: userIdInt }
+                    ]
+                }
+            });
+    
+            res.json({ ...user, isFollowing: Boolean(isFollowing) });
         } catch (error) {
-            console.error('Get Current Error',error);
-            
-            res.status(500).json({error:'Internal server error'})
+            console.error('Get User Error', error);
+            res.status(500).json({ error: 'Internal server error' });
         }
     },
-
-    
-    updateUser:  async (req,res) => {
-        const {id} = req.params;
-        const {email,name,dateOfBirth,bio,location}= req.body;
+    updateUser: async (req, res) => {
+        const { id } = req.params;
+        const { email, name, dateOfBirth, bio, location } = req.body;
         
+        // Преобразуем id в число
+        const userIdInt = parseInt(id, 10);
+    
+        if (isNaN(userIdInt)) {
+            return res.status(400).json({ error: "Invalid ID format" });
+        }
+    
         let filePath;
-
-        if(req.file && req.file.path){
+    
+        if (req.file && req.file.path) {
             filePath = req.file.path;
         }
-
-        if(id !== req.user.userId){
-            return res.status(403).json({error:'Нет доступа'})
+    
+        // Проверка на доступ
+        if (userIdInt !== req.user.userId) {
+            return res.status(403).json({ error: 'Нет доступа' });
         }
-
+    
         try {
-            if(email){
+            // Проверка на уникальность email
+            if (email) {
                 const existingUser = await prisma.user.findFirst({
-                    where:{email:email}
-                })
-
-                if(existingUser && existingUser.id !== id){
-                    return res.status(400).json({error:'Почта уже используется '})
+                    where: { email: email }
+                });
+    
+                if (existingUser && existingUser.id !== userIdInt) {
+                    return res.status(400).json({ error: 'Почта уже используется' });
                 }
             }
-
+    
+            // Обновление данных пользователя
             const user = await prisma.user.update({
-                where:{id},
-                data:{
-                    email:email || undefined,
+                where: { id: userIdInt },
+                data: {
+                    email: email || undefined,
                     name: name || undefined,
-                    avatarUrl: filePath ? `/${filePath}`: undefined,
-                    dateOfBirth:dateOfBirth || undefined,
-                    bio:bio || undefined,
-                    location:location || undefined
+                    avatarUrl: filePath ? `/${filePath}` : undefined,
+                    dateOfBirth: dateOfBirth || undefined,
+                    bio: bio || undefined,
+                    location: location || undefined
                 }
-            })
-            
+            });
+    
             res.json(user);
         } catch (error) {
-            console.error('Update user error',error);
-            res.status(500).json({error:'Internal server error'})
+            console.error('Update user error', error);
+            res.status(500).json({ error: 'Internal server error' });
         }
-
-
     },
+    
     current:  async (req,res) => {
         try {
             const user =  await prisma.user.findUnique({

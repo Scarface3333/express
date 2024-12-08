@@ -27,30 +27,36 @@ likePost: async (req,res) => {
         res.status(500).json({error:'Internet server error'})
     }
 },
-unlikePost: async (req,res) => {
-    const{id} = req.params;
-    const userId= req.user.userId;
+unlikePost: async (req, res) => {
+    const { id } = req.params;
+    const userId = req.user.userId;
+    
+    // Преобразуем id в число
+    const postId = parseInt(id, 10);
 
-    if (!id){
-        return res.status(400).json({error: 'Вы уже поставили дизлайк'})
+    if (isNaN(postId)) {
+        return res.status(400).json({ error: "Invalid ID format" });
     }
 
     try {
+        // Ищем, есть ли уже лайк
         const existingLike = await prisma.like.findFirst({
-            where: {postId: id,userId}
-        })
-        if(!existingLike){
-            return res.status(400).json({error:'Нельзя поставить дизлайк'})
+            where: { postId: postId, userId: userId }
+        });
+
+        if (!existingLike) {
+            return res.status(400).json({ error: 'Нельзя поставить дизлайк' });
         }
 
+        // Удаляем лайк
         const like = await prisma.like.deleteMany({
-            where: {postId:id,userId}
-        })
+            where: { postId: postId, userId: userId }
+        });
 
-        res.json(like)
+        res.json(like);
     } catch (error) {
-        console.error('Error unlike post',error)
-        res.status(500).json({error:'Internet server error'})
+        console.error('Error unlike post', error);
+        res.status(500).json({ error: 'Internet server error' });
     }
 },
 }

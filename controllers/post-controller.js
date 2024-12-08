@@ -54,10 +54,16 @@ const PostController = {
     getPostById: async (req,res) => {
         const {id} = req.params;
         const userId = req.user.userId;
+
+        const postId = parseInt(id, 10);
+
+        if (isNaN(postId)) {
+            return res.status(400).json({ error: "Invalid ID format" });
+        }
         
         try {
             const post = await prisma.post.findUnique({
-                where: {id},
+                where: {id:postId},
                 include: {
                     comments: {
                       include: {
