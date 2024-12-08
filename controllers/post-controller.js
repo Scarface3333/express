@@ -92,31 +92,42 @@ const PostController = {
         }
     },
    
-    deletePost: async (req,res) => {
-        const{id} = req.params;
-
-        const post = await prisma.post.findUnique({where: {id}});
-
-        if(!post){
-            return res.status(404).json({error:'Пост не найден'})
-        }
-
-        if(post.authorId !== req.user.userId)
-            return res.status(403).json({error:'Нет доступа'})
+    deletePost: async (req, res) => {
         try {
-            const  transaction = await prisma.$transaction([
-                prisma.comment.deleteMany({where: {postId: id}}),
-                prisma.like.deleteMany({where: {postId: id}}),
-                prisma.post.delete({where: {id}})
-            ])
-
-            res.json(transaction)
+            // Преобразуем id из параметра в целое число
+            let { id } = req.params;
+            const userId = parseInt(req.user.userId, 10);
+    
+            // Проверка на корректность формата id и userId
+            id = parseInt(id, 10);
+            if (isNaN(id) || isNaN(userId)) {
+                return res.status(400).json({ error: 'Неверный формат ID' });
+            }
+    
+            const post = await prisma.post.findUnique({ where: { id } });
+    
+            if (!post) {
+                return res.status(404).json({ error: 'Пост не найден' });
+            }
+    
+            if (post.authorId !== userId) {
+                return res.status(403).json({ error: 'Нет доступа к этому посту' });
+            }
+    
+            // Выполняем транзакцию для удаления комментариев, лайков и самого поста
+            const transaction = await prisma.$transaction([
+                prisma.comment.deleteMany({ where: { postId: id } }),
+                prisma.like.deleteMany({ where: { postId: id } }),
+                prisma.post.delete({ where: { id } })
+            ]);
+    
+            res.json(transaction);
         } catch (error) {
-            console.error('Delete port error',error)
-
-            res.status(500).json({error: 'Internal server error'})
+            console.error('Delete post error', error);
+            res.status(500).json({ error: 'Ошибка сервера при удалении поста' });
         }
     },
+    
 }
 
 module.exports =  PostController  

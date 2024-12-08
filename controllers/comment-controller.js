@@ -32,30 +32,37 @@ const CommentController = {
   },
   
   deleteComment: async (req, res) => {
-     
-    
-
     try {
-          const { id } = req.params;
-          const userId = parseInt(req.user.userId, 10);
-          const comment = await prisma.comment.findUnique({ where: { id } });
+        // Преобразуем id из параметров и userId из запроса в числа
+        let { id } = req.params;
+        const userId = parseInt(req.user.userId, 10);
 
-          if (!comment) {
-              return res.status(404).json({ error: 'Комментарий не найден' });
-          }
+        // Проверяем, что id и userId являются числами
+        id = parseInt(id, 10);
 
-          if (comment.userId !== userId) {
-              return res.status(403).json({ error: 'Нет доступа' });
-          }
+        if (isNaN(userId) || isNaN(id)) {
+            return res.status(400).json({ error: 'Неверный формат ID' });
+        }
 
-          await prisma.comment.delete({ where: { id } });
+        const comment = await prisma.comment.findUnique({ where: { id } });
 
-          res.json(comment);
-      } catch (error) {
-          console.error('Error deleting comment', error);
-          res.status(500).json({ error: 'Internal server error' });
-      }
-  }
+        if (!comment) {
+            return res.status(404).json({ error: 'Комментарий не найден' });
+        }
+
+        if (comment.userId !== userId) {
+            return res.status(403).json({ error: 'Нет доступа к удалению этого комментария' });
+        }
+
+        await prisma.comment.delete({ where: { id } });
+
+        res.json(comment);
+    } catch (error) {
+        console.error('Error deleting comment', error);
+        res.status(500).json({ error: 'Ошибка сервера при удалении комментария' });
+    }
+}
+
 }
 
 
