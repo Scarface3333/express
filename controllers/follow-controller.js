@@ -46,13 +46,7 @@ const FollowController = {
   unfollowUser: async (req, res) => {
       let { followingId } = req.body;
       const userId = parseInt(req.user.userId, 10);
-      followingId = parseInt(followingId, 10);
-
-      // Проверка на корректность ID
-      if (isNaN(userId) || isNaN(followingId)) {
-          return res.status(400).json({ error: 'Invalid ID format' });
-      }
-
+     
       try {
           const follows = await prisma.follows.findFirst({
               where: {

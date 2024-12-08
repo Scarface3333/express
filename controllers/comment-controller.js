@@ -32,16 +32,12 @@ const CommentController = {
   },
   
   deleteComment: async (req, res) => {
-      let { id } = req.params;
-      const userId = parseInt(req.user.userId, 10);
-      id = parseInt(id, 10);
+     
+    
 
-      // Проверка на корректность ID
-      if (isNaN(userId) || isNaN(id)) {
-          return res.status(400).json({ error: 'Invalid ID format' });
-      }
-
-      try {
+    try {
+          const { id } = req.params;
+          const userId = parseInt(req.user.userId, 10);
           const comment = await prisma.comment.findUnique({ where: { id } });
 
           if (!comment) {
