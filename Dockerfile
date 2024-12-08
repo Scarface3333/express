@@ -1,5 +1,5 @@
 #Используем образ линукс Alpine с версией node 
-FROM node:22.11.0-alpine
+FROM node:19.5.0-alpine
 
 # Указываем нашу рабочую дерикторию 
 WORKDIR /app 
