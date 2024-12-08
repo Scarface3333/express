@@ -14,7 +14,7 @@ datasource db {
 }
 
 model User {
-  id          Int       @id @default(autoincrement())
+  id          String      @id @default(autoincrement())
   email       String    @unique
   password    String
   name        String?
@@ -32,37 +32,37 @@ model User {
 }
 
 model Follows {
-  id          Int   @id @default(autoincrement())
+  id          String   @id @default(autoincrement())
   follower    User   @relation("follower", fields: [followerId], references: [id])
-  followerId  Int
+  followerId  String
   following   User   @relation("following", fields: [followingId], references: [id])
-  followingId Int
+  followingId String
 }
 
 model Post {
-  id        Int       @id @default(autoincrement())
+  id        String     @id @default(autoincrement())
   content   String
   author    User      @relation(fields: [authorId], references: [id])
-  authorId  Int
+  authorId  String
   likes     Like[]
   comments  Comment[]
   createdAt DateTime   @default(now())
 }
 
 model Like {
-  id     Int   @id @default(autoincrement())
+  id     String   @id @default(autoincrement())
   user   User   @relation(fields: [userId], references: [id])
-  userId Int
+  userId String
   post   Post   @relation(fields: [postId], references: [id])
-  postId Int
+  postId String
 }
 
 model Comment {
-  id      Int   @id @default(autoincrement())
+  id      String   @id @default(autoincrement())
   content String
   user    User   @relation(fields: [userId], references: [id])
-  userId  Int
+  userId  String
   post    Post   @relation(fields: [postId], references: [id])
-  postId  Int
+  postId  String
 }
 
