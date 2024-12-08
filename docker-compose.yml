@@ -34,7 +34,7 @@ services:
       - db
       - react-app
     environment:
-      DATABASE_URL: 'postgresql://postgres:VJCjsDzTaotFBquuhtufSGpaDVidSTKA@db:5432/railway'
+      DATABASE_URL: 'postgresql://postgres:VJCjsDzTaotFBquuhtufSGpaDVidSTKA@autorack.proxy.rlwy.net:14397/railway'
 
   db: # База данных PostgreSQL
     image: postgres:latest
